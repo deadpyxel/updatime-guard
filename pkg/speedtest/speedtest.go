@@ -16,17 +16,6 @@ type Result struct {
 	Timestamp time.Time
 }
 
-func RunSpeedtest() (Result, error) {
-	fmt.Println("Running simulated speed test...")
-
-	return Result{
-		DownMbps:  100.0,
-		UpMbps:    20.0,
-		PingMs:    15.0,
-		Timestamp: time.Now(),
-	}, nil
-}
-
 // TODO: Add other providers for cases we want to use the CLI directly
 // or some tool that is able to interface with ours given properly parsable output
 // The idea of providers is that we would be able to further extend the supported speed test solutiosn we have
@@ -45,4 +34,57 @@ func NewSpeedtestGoProvider() (*SpeedtestGoProvider, error) {
 
 	log.Printf("Speedtest user info: %+v\n", user)
 	return &SpeedtestGoProvider{user: user}, nil
+}
+
+// RunTest performs a spedtest using a 3rd party library implementation
+func (p *SpeedtestGoProvider) RunTest() (Result, error) {
+	serverList, err := speedtest.FetchServers()
+	if err != nil {
+		return Result{}, fmt.Errorf("failed to fetch speedtest servers: %w", err)
+	}
+
+	if len(serverList) == 0 {
+		return Result{}, fmt.Errorf("no speedtest servers found")
+	}
+
+	// Select bet server for the test
+	targets, err := serverList.FindServer([]int{}) // []int{} is used to filter lowest latency
+	if err != nil {
+		return Result{}, fmt.Errorf("failed to find speedtest server: %w", err)
+	}
+	if len(targets) == 0 {
+		return Result{}, fmt.Errorf("no suitable speedtest servers found")
+	}
+
+	server := targets[0] // Use the first (supposedely best) server
+	log.Printf("Testing against server: %s (%s)\n", server.Name, server.Host)
+
+	// Perform ping test
+	err = server.PingTest(nil)
+	if err != nil {
+		return Result{}, fmt.Errorf("speedtest ping test failed: %w", err)
+	}
+	pingMs := float64(server.Latency.Milliseconds()) // Latency in Milliseconds, converted to float64
+
+	// Perform download test
+	err = server.DownloadTest()
+	if err != nil {
+		return Result{}, fmt.Errorf("speedtest download test failed: %w", err)
+	}
+	downMbps := server.DLSpeed.Mbps()
+
+	// Perform upload test
+	err = server.UploadTest()
+	if err != nil {
+		return Result{}, fmt.Errorf("speedtest download test failed: %w", err)
+	}
+	upMbps := server.ULSpeed.Mbps()
+
+	return Result{
+		DownMbps:  downMbps,
+		UpMbps:    upMbps,
+		PingMs:    pingMs,
+		Timestamp: time.Now().UTC(),
+	}, nil
+
 }
