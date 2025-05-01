@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/deadpyxel/uptime-guard/internal/monitor"
 	"github.com/deadpyxel/uptime-guard/internal/storage"
@@ -30,22 +31,13 @@ func main() {
 		log.Fatalf("Error creating speedtest provider: %v", err)
 	}
 
-	// WIP: Run a speedtest once to verify execution
-	fmt.Println("\nRunning a test speed test...")
-	res, err := speedtestProvider.RunTest()
-	if err != nil {
-		log.Fatalf("Error running speedtest: %v", err)
+	cfg := monitor.Config{
+		SpeedtestInterval: 30 * time.Minute, // Run Speed test every 30 minutes
+		ConnCheckInterval: 30 * time.Second, // Check connectivity every 30 seconds
+		DBPath:            "uptime.db",      // Maybe this can be removed since we do not operate directly on the DB
 	}
-	fmt.Printf("Results: %v\n", res)
-
-	// TODO: Save the result to database
-	err = storage.SaveSpeedtestResult(res.DownMbps, res.UpMbps, res.PingMs, res.Timestamp)
-	if err != nil {
-		log.Printf("Error saving test speed test result: %v\n", err)
-	}
-
 	// Start monitoring
-	monitor.StartMonitoring()
+	monitor.StartMonitoring(cfg, speedtestProvider)
 
 	// The application will exit here for now
 }
