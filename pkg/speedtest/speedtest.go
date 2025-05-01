@@ -59,7 +59,7 @@ func (p *SpeedtestGoProvider) RunTest() (Result, error) {
 		return Result{}, fmt.Errorf("no suitable speedtest servers found")
 	}
 
-	server := targets[0] // Use the first (supposedely best) server
+	server := targets[0] // Use the first (supposedly best) server
 	log.Printf("Testing against server: %s (%s)\n", server.Name, server.Host)
 
 	// Perform ping test

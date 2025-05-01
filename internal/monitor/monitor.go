@@ -115,7 +115,7 @@ func StartMonitoring(cfg Config, stProvider speedtest.SpeedtestProvider) {
 	}()
 }
 
-// CheckConnectivity checks if the internet connection is availabe.
+// CheckConnectivity checks if the internet connection is available.
 // It attempts to establish a connection to a set of known reliable hosts
 func CheckConnectivity() bool {
 	// List of reliable hosts to check (e.g Public DNS servers)
