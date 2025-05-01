@@ -36,9 +36,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error running speedtest: %v", err)
 	}
-	fmt.Printf("Results: %v", res)
+	fmt.Printf("Results: %v\n", res)
 
 	// TODO: Save the result to database
+	err = storage.SaveSpeedtestResult(res.DownMbps, res.UpMbps, res.PingMs, res.Timestamp)
+	if err != nil {
+		log.Printf("Error saving test speed test result: %v\n", err)
+	}
 
 	// Start monitoring
 	monitor.StartMonitoring()
