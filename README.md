@@ -9,8 +9,8 @@ Internet monitoring tool with speed test and downtime tracking.
 
 ## Overview
 
-`uptime-guard` is a self-contained command-line tool written in Go to monitor your internet connection's speed and uptime. 
-It periodically performs speed tests and connectivity checks, recording the results and downtime events in an SQLite database. 
+`uptime-guard` is a self-contained command-line tool written in Go to monitor your internet connection's speed and uptime.
+It periodically performs speed tests and connectivity checks, recording the results and downtime events in an SQLite database.
 This data can be used for analysis, helping you understand your internet service performance over time and potentially identify issues with your ISP.
 
 > [!IMPORTANT]
@@ -105,7 +105,7 @@ We welcome contributions! If you'd like to contribute to `uptime-guard`, here's 
 
 ## Contributing
 
-We welcome contributions from the community! Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file (to be created) for details on how to contribute.
+We welcome contributions from the community! Please see the [CONTRIBUTING](CONTRIBUTING.md) guide for details on how to contribute.
 
 ## Acknowledgements
 
