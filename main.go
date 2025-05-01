@@ -12,7 +12,7 @@ func main() {
 	fmt.Println("Starting uptime-guard...")
 
 	// Initialize storage (database)
-	err := storage.InitializeDatabase()
+	err := storage.InitializeDB("uptimeguard.db")
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
