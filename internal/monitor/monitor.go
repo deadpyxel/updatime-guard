@@ -23,6 +23,7 @@ func StartMonitoring(cfg Config, stProvider speedtest.SpeedtestProvider) {
 	fmt.Println("Monitor started with config", cfg)
 
 	// TODO: graceful shutdown
+	stopCh := make(chan struct{})
 
 	// Goroutine for scheduling speed tests
 	go func() {
@@ -43,6 +44,9 @@ func StartMonitoring(cfg Config, stProvider speedtest.SpeedtestProvider) {
 				if err != nil {
 					log.Printf("Error saving speed test result: %v\n", err)
 				}
+			case <-stopCh:
+				log.Println("Speed test scheduler stopped.")
+				return
 			}
 		}
 	}()
@@ -102,8 +106,11 @@ func StartMonitoring(cfg Config, stProvider speedtest.SpeedtestProvider) {
 					log.Println("Internet connection remains offline")
 				} else {
 					// Remains online
-					log.Println("Interne connection remains online")
+					log.Println("Internet connection remains online")
 				}
+			case <-stopCh:
+				log.Println("connectivity checks stopped.")
+				return
 			}
 		}
 	}()

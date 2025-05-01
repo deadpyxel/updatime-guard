@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/deadpyxel/uptime-guard/internal/monitor"
@@ -39,5 +42,12 @@ func main() {
 	// Start monitoring
 	monitor.StartMonitoring(cfg, speedtestProvider)
 
-	// The application will exit here for now
+	// Keep the main function alive until a termination signal is received
+	stopChan := make(chan os.Signal, 1)
+	signal.Notify(stopChan, os.Interrupt, syscall.SIGTERM)
+	<-stopChan
+
+	log.Println("Received termination signal. Shutting down....")
+
+	// TODO: Add graceful shutdown by sending signal to the monitor stopCh
 }

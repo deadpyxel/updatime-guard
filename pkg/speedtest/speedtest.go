@@ -36,7 +36,6 @@ func NewSpeedtestGoProvider() (*SpeedtestGoProvider, error) {
 		return nil, fmt.Errorf("failed to fetch speedtest user info: %w", err)
 	}
 
-	log.Printf("Speedtest user info: %+v\n", user)
 	return &SpeedtestGoProvider{user: user}, nil
 }
 
