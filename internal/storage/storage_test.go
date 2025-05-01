@@ -219,7 +219,6 @@ func TestGetTotalDowntime(t *testing.T) {
 	}
 
 	// Expected total duration = 300 + 600 = 900 seconds
-	// Use a tolerance for comparing calculated durations
 	expectedTotalDuration := 900
 	if expectedTotalDuration != totalDT {
 		t.Errorf("Expected total downtime %d seconds, got %d", expectedTotalDuration, totalDT)

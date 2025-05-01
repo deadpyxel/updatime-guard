@@ -102,7 +102,7 @@ func SaveDowntimeStart(startTime time.Time) (int64, error) {
 	return id, nil
 }
 
-// UpdateDowntimeEnd updates a downtime_event with matchin id, setting the endtime and updating the duration
+// UpdateDowntimeEnd updates a downtime_event with matching id, setting the endtime and updating the duration
 func UpdateDowntimeEnd(id int64, endTime time.Time) error {
 	// Retrieve start time to calculate duration
 	var startTime time.Time
