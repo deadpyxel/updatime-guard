@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3" // Import SQLite driver
 )
@@ -64,5 +65,68 @@ func createTables() error {
 
 	log.Println("Database tables created or already exist.")
 
+	return nil
+}
+
+// SaveSpeedtestResult creates a new entry on speed_tests with the result of the speedtest
+func SaveSpeedtestResult(downMbps, upMbps, pingMs float64, timestamp time.Time) error {
+	q := `
+	INSERT INTO speed_tests (download_mbps, upload_mbps, ping_ms, timestamp)
+	VALUES (?, ?, ?, ?);`
+
+	_, err := db.Exec(q, downMbps, upMbps, pingMs, timestamp)
+	if err != nil {
+		return fmt.Errorf("failed to save speed test result: %w", err)
+	}
+	log.Printf("Saved speedtest result...")
+	return nil
+}
+
+// SaveDowntimeStart creates a new entry in downtime_events setting the start_time
+func SaveDowntimeStart(startTime time.Time) (int64, error) {
+	q := `
+	INSERT INTO downtime_events (start_time)
+	VALUES (?);`
+
+	result, err := db.Exec(q, startTime)
+	if err != nil {
+		return 0, fmt.Errorf("failed to save downtime start: %w", err)
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("failed to get last inserted ID after saving downtime start: %w", err)
+	}
+
+	log.Printf("Saved downtime start at %s with ID %d\n", startTime.Format(time.RFC3339), id)
+	return id, nil
+}
+
+// UpdateDowntimeEnd updates a downtime_event with matchin id, setting the endtime and updating the duration
+func UpdateDowntimeEnd(id int64, endTime time.Time) error {
+	// Retrieve start time to calculate duration
+	var startTime time.Time
+	err := db.QueryRow("SELECT start_time FROM downtime_events WHERE id = ?", id).Scan(&startTime)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return fmt.Errorf("downtime event with ID %d not found", id)
+		}
+		return fmt.Errorf("failed to get start time for downtime event with ID %d: %w", id, err)
+	}
+
+	duration := endTime.Sub(startTime).Seconds()
+
+	q := `
+	UPDATE downtime_events
+	SET end_time = ?, duration_seconds = ?
+	WHERE id = ?;`
+
+	_, err = db.Exec(q, endTime, int(duration), id)
+	if err != nil {
+		return fmt.Errorf("failed to update downtime end for ID %d: %w", id, err)
+	}
+
+	log.Printf("Updated downtime event ID %d with end time %s and duration %.2f",
+		id, endTime.Format(time.RFC3339), duration)
 	return nil
 }
