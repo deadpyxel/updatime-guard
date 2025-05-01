@@ -6,6 +6,7 @@ import (
 
 	"github.com/deadpyxel/uptime-guard/internal/monitor"
 	"github.com/deadpyxel/uptime-guard/internal/storage"
+	"github.com/deadpyxel/uptime-guard/pkg/speedtest"
 )
 
 func main() {
@@ -16,6 +17,28 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
+	defer func() {
+		err := storage.CloseDB()
+		if err != nil {
+			log.Printf("Error closing database: %v\n", err)
+		}
+	}()
+
+	// Create a speed test provider using the showwin/speedtest-go library
+	speedtestProvider, err := speedtest.NewSpeedtestGoProvider()
+	if err != nil {
+		log.Fatalf("Error creating speedtest provider: %v", err)
+	}
+
+	// WIP: Run a speedtest once to verify execution
+	fmt.Println("\nRunning a test speed test...")
+	res, err := speedtestProvider.RunTest()
+	if err != nil {
+		log.Fatalf("Error running speedtest: %v", err)
+	}
+	fmt.Printf("Results: %v", res)
+
+	// TODO: Save the result to database
 
 	// Start monitoring
 	monitor.StartMonitoring()
