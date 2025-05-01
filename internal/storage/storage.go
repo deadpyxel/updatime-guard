@@ -130,3 +130,51 @@ func UpdateDowntimeEnd(id int64, endTime time.Time) error {
 		id, endTime.Format(time.RFC3339), duration)
 	return nil
 }
+
+// GetAvgSpeed returns the average download and upload speed in a given timeframe
+func GetAvgSpeed(startTime, endTime time.Time) (float64, float64, error) {
+	q := `
+	SELECT AVG(download_mbps), AVG(upload_mbps)
+	FROM speed_tests
+	WHERE timestamp BETWEEN ? AND ?;`
+
+	var avgDown, avgUp sql.NullFloat64 // Use NullFloat64 for handling no results
+	err := db.QueryRow(q, startTime, endTime).Scan(&avgDown, &avgUp)
+	if err != nil {
+		return 0, 0, fmt.Errorf("failed to get average speed: %w", err)
+	}
+
+	// Handle cases where there are no records in the time range
+	downSpd := 0.0
+	if avgDown.Valid {
+		downSpd = avgDown.Float64
+	}
+	upSpd := 0.0
+	if avgUp.Valid {
+		upSpd = avgUp.Float64
+	}
+
+	return downSpd, upSpd, nil
+}
+
+// GetTotalDowntime retrieves the sum in seconds of all downtime in a timeframe
+func GetTotalDowntime(startTime, endTime time.Time) (int, error) {
+	q := `
+	SELECT SUM(duration_seconds)
+	FROM downtime_events
+	WHERE start_time BETWEEN ? AND ? AND end_time IS NOT NULL;`
+
+	var totalDuration sql.NullInt64 // Use NullInt64 for handling no results
+
+	err := db.QueryRow(q, startTime, endTime).Scan(&totalDuration)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get total downtime: %w", err)
+	}
+
+	duration := 0
+	if totalDuration.Valid {
+		duration = int(totalDuration.Int64)
+	}
+
+	return duration, nil
+}
