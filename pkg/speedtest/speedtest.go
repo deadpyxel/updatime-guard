@@ -16,6 +16,10 @@ type Result struct {
 	Timestamp time.Time
 }
 
+type SpeedtestProvider interface {
+	RunTest() (Result, error)
+}
+
 // TODO: Add other providers for cases we want to use the CLI directly
 // or some tool that is able to interface with ours given properly parsable output
 // The idea of providers is that we would be able to further extend the supported speed test solutiosn we have
