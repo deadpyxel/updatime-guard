@@ -37,7 +37,6 @@ func main() {
 	cfg := monitor.Config{
 		SpeedtestInterval: 30 * time.Minute, // Run Speed test every 30 minutes
 		ConnCheckInterval: 30 * time.Second, // Check connectivity every 30 seconds
-		DBPath:            "uptime.db",      // Maybe this can be removed since we do not operate directly on the DB
 	}
 	// Start monitoring
 	monitor.StartMonitoring(cfg, speedtestProvider)

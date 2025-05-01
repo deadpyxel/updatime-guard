@@ -14,7 +14,6 @@ import (
 type Config struct {
 	SpeedtestInterval time.Duration
 	ConnCheckInterval time.Duration
-	DBPath            string
 }
 
 // StartMonitoring begins the internet monitoring process
