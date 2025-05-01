@@ -38,8 +38,8 @@ func createTables() error {
 	speedTestsCreateTableSQL := `
 	CREATE TABLE IF NOT EXISTS speed_tests (
 	    id INTEGER PRIMARY KEY AUTOINCREMENT,
-	    download_mpbs REAL NOT NULL,
-	    uptime_mpbs REAL NOT NULL,
+	    download_mbps REAL NOT NULL,
+	    upload_mbps REAL NOT NULL,
 	    ping_ms REAL NOT NULL,
 	    timestamp DATETIME NOT NULL
 	);`
